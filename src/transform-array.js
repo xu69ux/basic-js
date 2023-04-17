@@ -13,34 +13,46 @@ const { NotImplementedError } = require('../extensions/index.js');
  * transform([1, 2, 3, '--discard-prev', 4, 5]) => [1, 2, 4, 5]
  * 
  */
+function isControl(t) {
+    return t === '--double-next' || t === '--double-prev' || t === '--discard-next' || t === '--discard-prev';
+}
+
 function transform(arr) {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
-    let result = [];
-    if (!Array.isArray(arr)) {
+    let seq = [], result = [];
+
+    if(!Array.isArray(arr)) {
         throw new Error("'arr' parameter must be an instance of the Array!");
     }
-    for (let i = 0; i < arr.length; i++) {
-        if (i <  arr.length - 1) {
-            if (arr[i] === '--double-next') {
-                result.push(arr[i + 1]);
-                result.push(arr[i + 1]);
-                i++;
-            }
-        } else if (arr[i] === '--double-prev') {
-            if (i !== 0) {
-                result.push(arr[i - 1]);
-            }
-        } else if (arr[i] === '--discard-next') {
-            if (i < arr.length - 1) {
-                i++;
-            }
-        } else if (arr[i] === '--discard-prev') {
-            if (i !== 0) {
-                result.pop();
+
+    for (let val of arr) {
+        if (isControl(val)) {
+            seq.push(val);
+        } else {
+            seq.push({v: val, c: 1});
+        }
+    }
+
+    for (let i = 0; i < seq.length; i++) {
+        if (isControl(seq[i])) {
+            if (seq[i] == '--double-next' && i < seq.length - 1 && seq[i + 1].c > 0) {
+                seq[i + 1].c++;
+            } else if (seq[i] == '--double-prev' && i > 0 && seq[i - 1].c > 0) {
+                seq[i - 1].c++;
+            } else if (seq[i] == '--discard-next' && i < seq.length - 1 && seq[i + 1].c > 0) {
+                seq[i + 1].c--;
+            } else if (seq[i] == '--discard-prev' && i > 0 && seq[i - 1].c > 0) {
+                seq[i - 1].c--;
             }
         }
     }
+
+    for (let val of seq) {
+        if (isControl(val)) continue;
+        for (let j = 0; j < val.c; j++) {
+            result.push(val.v);
+        }
+    }
+
     return result;
 }
 

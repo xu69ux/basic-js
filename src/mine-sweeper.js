@@ -26,17 +26,31 @@ const { NotImplementedError } = require('../extensions/index.js');
 function minesweeper(matrix) {
   let w = matrix[0].length,
       h = matrix.length,
-      result = Array(h); 
+      result = Array(h);
       
       for (let y = 0; y < h; y++) {
         result[y] = Array(w);
       }
+      function checkCell(tx, ty) {
+        return tx >= 0 && tx < w && ty >= 0 && ty < h && matrix[ty][tx];
+      }
       for (let x = 0; x < w; x++) {
         for (let y = 0; y < h; y++) {
-          
+          let n = 0;
+          if (checkCell(x - 1, y - 1)) n++;
+          if (checkCell(x, y - 1)) n++;
+          if (checkCell(x + 1, y - 1)) n++;
+
+          if (checkCell(x - 1, y)) n++;
+          if (checkCell(x + 1, y)) n++;
+
+          if (checkCell(x - 1, y + 1)) n++;
+          if (checkCell(x, y + 1)) n++;
+          if (checkCell(x + 1, y + 1)) n++;
+
+          result[y][x] = n;
         }
       }
-
       return result;
 }
 
